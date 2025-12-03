@@ -64,7 +64,23 @@ def parse_data(df: pd.DataFrame, verbose: bool = False) -> pd.DataFrame:
     df = df.copy()
     df['date'] = pd.to_datetime(df['p2a'], format='%d.%m.%Y')
 
-    region = {0: "PHA", 1: "STC", 2: "JHC", 3: "PLK", 4: "ULK", 5: "HKK",6: "JHM", 7: "MSK", 14: "OLK", 15: "ZLK", 16: "VYS", 17: "PAK", 18: "LBK", 19: "KVK"} 
+    region = {
+        0: "PHA",
+        1: "STC",
+        2: "JHC",
+        3: "PLK",
+        4: "ULK",
+        5: "HKK",
+        6: "JHM",
+        7: "MSK",
+        14: "OLK",
+        15: "ZLK",
+        16: "VYS",
+        17: "PAK",
+        18: "LBK",
+        19: "KVK"
+    } 
+
     df['region'] = df['p4a'].map(region)
 
     df = df.drop_duplicates(subset=['p1'])
@@ -165,6 +181,7 @@ def plot_alcohol(df: pd.DataFrame, df_consequences : pd.DataFrame,  fig_location
     ordered_regions = sorted(counts['region'].unique())
 
     g = sns.catplot(data=counts, x='region', y='count', hue='year', col='injury', kind='bar', col_wrap=2, height=3, aspect=1.5, palette='Set2', sharey=False, order=ordered_regions)
+
     g.set_axis_labels('Region', 'Number of accidents')
     g.set_titles('{col_name}')
 
@@ -188,6 +205,7 @@ def plot_conditions(df: pd.DataFrame, fig_location: str = None, show_figure: boo
     :param show_figure: Displays the graph if True
     :type show_figure: bool
     """
+
     # Choose these 4 regions because they were choosed in the assignment example
     regions = ['JHM', 'MSK', 'OLK', 'ZLK']
     df_filtered = df[df['region'].isin(regions)].copy()
@@ -232,12 +250,7 @@ def plot_conditions(df: pd.DataFrame, fig_location: str = None, show_figure: boo
 
     ordered_regions = sorted(melted['region'].unique())
     
-    g = sns.relplot(
-        data=melted,
-        x='date', y='count', hue='condition', col='region', kind='line',
-        col_wrap=2, height=3, aspect=1.5, palette='Set2',
-        facet_kws={'sharey': False, 'legend_out': True}, col_order=ordered_regions
-    )
+    g = sns.relplot(data=melted, x='date', y='count', hue='condition', col='region', kind='line', col_wrap=2, height=3, aspect=1.5, palette='Set2', facet_kws={'sharey': False, 'legend_out': True}, col_order=ordered_regions)
 
     for ax in g.axes.flat:
         ax.grid(False)
