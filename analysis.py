@@ -14,6 +14,17 @@ import zipfile
 
 
 def load_data(filename: str, ds: str) -> pd.DataFrame:
+    """
+    Loads data from zip file and returns DataFrame of the dataset.
+    
+    :param filename: Path to the zip
+    :type filename: str
+    :param ds: Name of the xsl file
+    :type ds: str
+    :return: DataFrame containing the data
+    :rtype: DataFrame
+    """
+
     # Extracted folder names
     years = ['2023', '2024', '2025']
     # Dataframe holder
@@ -39,9 +50,17 @@ def load_data(filename: str, ds: str) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True)
 
 # Ukol 2: zpracovani dat
-
-
 def parse_data(df: pd.DataFrame, verbose: bool = False) -> pd.DataFrame:
+    """
+    Creates column for date and maps region column to the region codes. Removes duplicates in p1.
+    
+    :param df: Input DataFrame 
+    :type df: pd.DataFrame
+    :param verbose: Prints new size of the DataFrame in MB 
+    :type verbose: bool
+    :return: Returns processed DataFrame
+    :rtype: DataFrame
+    """
     df = df.copy()
     df['date'] = pd.to_datetime(df['p2a'], format='%d.%m.%Y')
 
@@ -57,8 +76,19 @@ def parse_data(df: pd.DataFrame, verbose: bool = False) -> pd.DataFrame:
     return df
 
 # Ukol 3: počty nehod v jednotlivých regionech podle stavu řidiče
-def plot_state(df: pd.DataFrame, df_vehicles : pd.DataFrame, fig_location: str = None,
-                    show_figure: bool = False):
+def plot_state(df: pd.DataFrame, df_vehicles : pd.DataFrame, fig_location: str = None, show_figure: bool = False):
+    """
+    Creates graphs of number of accidents in each region and driver's state.
+    
+    :param df: DataFrame containing accident data
+    :type df: pd.DataFrame
+    :param df_vehicles: DataFrame containing vehicle data
+    :type df_vehicles: pd.DataFrame
+    :param fig_location: Saves graph to this location if provided
+    :type fig_location: str
+    :param show_figure: Displays the graph if True
+    :type show_figure: bool
+    """
     print("plot")
     merge = df.merge(df_vehicles, left_on='p1', right_on='p1', how='inner')
     print(merge)
@@ -101,8 +131,19 @@ def plot_state(df: pd.DataFrame, df_vehicles : pd.DataFrame, fig_location: str =
     plt.close()
 
 # Ukol4: alkohol a roky v krajích
-def plot_alcohol(df: pd.DataFrame, df_consequences : pd.DataFrame, 
-                 fig_location: str = None, show_figure: bool = False):
+def plot_alcohol(df: pd.DataFrame, df_consequences : pd.DataFrame,  fig_location: str = None, show_figure: bool = False):
+    """
+    Creates graphs of number of accidents in regions by year and injury level.
+    
+    :param df: DataFrame containing accident data
+    :type df: pd.DataFrame
+    :param df_consequences: DataFrame containing consequences data
+    :type df_consequences: pd.DataFrame
+    :param fig_location: Saves graph to this location if provided
+    :type fig_location: str
+    :param show_figure: Displays the graph if True 
+    :type show_figure: bool
+    """
     merge = df.merge(df_consequences, left_on='p1', right_on='p1', how='inner')
 
     injury = {
@@ -136,8 +177,17 @@ def plot_alcohol(df: pd.DataFrame, df_consequences : pd.DataFrame,
     plt.close()
 
 # Ukol 5: Podmínky v čase
-def plot_conditions(df: pd.DataFrame, fig_location: str = None,
-                    show_figure: bool = False):
+def plot_conditions(df: pd.DataFrame, fig_location: str = None, show_figure: bool = False):
+    """
+    Plots number of accidents in time period by weather conditions for choosen regions.
+    
+    :param df: DataFrame containing accident data
+    :type df: pd.DataFrame
+    :param fig_location: Saves graph to this location if provided 
+    :type fig_location: str
+    :param show_figure: Displays the graph if True
+    :type show_figure: bool
+    """
     # Choose these 4 regions because they were choosed in the assignment example
     regions = ['JHM', 'MSK', 'OLK', 'ZLK']
     df_filtered = df[df['region'].isin(regions)].copy()
@@ -193,24 +243,12 @@ def plot_conditions(df: pd.DataFrame, fig_location: str = None,
         ax.grid(False)
         ax.set_facecolor('#f9f9f9')
 
-    # g._legend.set_bbox_to_anchor((1.05, 0.5))
-    # plt.subplots_adjust(right=0.8)
-
     g.set_axis_labels('Date', 'Number of accidents')
     g.set_titles('{col_name}')
+   
+    # Tight layout disabled because it moved the legend so it wasn't outside the figure. Took a lot of time to find this mistake :'(
+    #plt.tight_layout()
 
-
-    # Place a single legend to the right, outside the grid
-    # Add legend (created on FacetGrid's figure) and anchor it
-    # g.add_legend()
-    # if g._legend is not None:
-    #     g._legend.set_bbox_to_anchor((1.02, 0.5))
-    #     g._legend.set_loc('center left')
-    # # Create space on the right for the legend box
-    # g.fig.subplots_adjust(right=0.82)
-
-    # plt.tight_layout()
-    
     if fig_location:
         plt.savefig(fig_location)
     if show_figure:
